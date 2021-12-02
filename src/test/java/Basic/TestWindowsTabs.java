@@ -62,7 +62,7 @@ public class TestWindowsTabs extends TableSearch {
         driver.findElement(By.cssSelector("#newBrowserTab")).click();
         logger.info("Click on button: new message window");
 
-        ArrayList<String> tabs2 = new ArrayList<String> (driver.getWindowHandles());
+        ArrayList<String> tabs2 = new ArrayList<> (driver.getWindowHandles());
         driver.switchTo().window(tabs2.get(1));
 
         searchSpecifiedData();
