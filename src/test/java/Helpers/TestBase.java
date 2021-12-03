@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ public class TestBase {
         options.setExperimentalOption("prefs", prefs);
         options.addArguments("start-maximized");
         driver = new ChromeDriver(options);
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
         logger.debug("Set properties to chrome driver");
     }
 
