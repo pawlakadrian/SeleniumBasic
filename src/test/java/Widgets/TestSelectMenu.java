@@ -38,8 +38,7 @@ public class TestSelectMenu extends TestBase {
         String actualValueInInput = driver.findElement(By.cssSelector("#speed-button .ui-selectmenu-text")).getText();
         logger.info("Actual selected speed is: {}", actualValueInInput);
 
-
-        //Select a file
+        // Select a file
         WebElement btnOpenSelectAFile = driver.findElement(By.cssSelector("#files-button"));
         btnOpenSelectAFile.click();
         logger.info("Click on button to open menu with select a file");
@@ -48,16 +47,13 @@ public class TestSelectMenu extends TestBase {
         wait.until(ExpectedConditions.visibilityOfAllElements(listFileMenu));
         logger.info("Wait for list of all elements from file menu");
 
-//        List<WebElement> fileMenuOptions = driver.findElements(By.cssSelector("#files-menu .ui-menu-item"));
-//        fileMenuOptions.;
-        WebElement selectedOption = driver.findElement(By.xpath("//*[text()='Some unknown file']"));
+        WebElement selectedOption = driver.findElement(By.xpath("//*[@id='ui-id-8'][text()='Some unknown file']"));
         selectedOption.click();
-        String actualValueInInputFile = driver.findElement(By.cssSelector("#files-menu .ui-selectmenu-text")).getText();
+        String actualValueInInputFile = driver.findElement(By.cssSelector("#files-button .ui-selectmenu-text")).getText();
         logger.info("Actual selected files is: {}", actualValueInInputFile);
 
-//        WebElement SelectAFile = driver.findElement(By.xpath("//div[text()='Some unknown file']"));
-//        logger.info("Select 'Some unknown file' option as file {}", SelectAFile.getText());
-
+        // Select a number
+        
     }
 
     int getRandomValue(List<WebElement> availableOptions) {
