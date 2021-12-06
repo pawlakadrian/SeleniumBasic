@@ -10,6 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+
 public class TestModal extends TestBase {
     private static Logger logger = LoggerFactory.getLogger(TestAccordion.class);
 
@@ -27,20 +30,23 @@ public class TestModal extends TestBase {
         WebElement inputPass = driver.findElement(By.cssSelector("#password"));
 
         inputName.clear();
-        inputName.sendKeys("Adrian");
+        String name = "Adrian";
+        inputName.sendKeys(name);
 
         inputEmail.clear();
-        inputEmail.sendKeys("apawlak1@sii.pl");
+        String email = "apawlak1@sii.pl";
+        inputEmail.sendKeys(email);
 
         inputPass.clear();
-        inputPass.sendKeys("password");
+        String password = "password";
+        inputPass.sendKeys(password);
 
         WebElement createAnAccountBtn = driver.findElement(By.xpath("//*[contains(text(), 'Create an account')]"));
         createAnAccountBtn.click();
 
-        List<WebElement> rows = driver.findElements(By.cssSelector("#users tbody tr"));
-        System.out.println(rows);
-
-        //todo: assertion to check new row
+        WebElement newUserFromTable = driver.findElement(By.cssSelector("#users tbody tr:last-child"));
+        logger.info(String.valueOf(newUserFromTable.getText()));
+        assertThat(newUserFromTable.getText(), equalTo(name + " " + email + " " + password));
+        logger.info("Assertion for new user in table");
     }
 }

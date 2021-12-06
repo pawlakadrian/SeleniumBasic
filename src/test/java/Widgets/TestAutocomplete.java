@@ -35,11 +35,11 @@ public class TestAutocomplete extends TestBase {
 
         int getDrawnNumber = getRandomValue(availableOptions);
         String getNameOfValue = availableOptions.get(getDrawnNumber).getText();
-        System.out.println("getNameOfValue " + getNameOfValue);
+        logger.info("Shuffled value: {}", getNameOfValue);
         availableOptions.get(getDrawnNumber).click();
-
-        assertThat(getNameOfValue, equalTo(driver.findElement(By.cssSelector("#search")).getAttribute("value")));
-        //todo: get value from input search to assert
+        String valueFromInput = driver.findElement(By.cssSelector("#search")).getAttribute("value");
+        logger.info("Value from input: {}", valueFromInput);
+        assertThat(getNameOfValue, equalTo(valueFromInput));
     }
 
     int getRandomValue(List availableOptions) {
