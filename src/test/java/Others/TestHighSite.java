@@ -5,7 +5,6 @@ import Widgets.TestAccordion;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.*;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -24,13 +23,14 @@ public class TestHighSite extends TestBase {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
         JavascriptExecutor js = (JavascriptExecutor) driver;
-        WebElement scollBtn = driver.findElement(By.cssSelector(".show-button"));
+//        WebElement scollBtn = driver.findElement(By.cssSelector("#scroll-button"));
 
         String btnHighVisibility = driver.findElement(By.cssSelector(".show-button")).getAttribute("style");
         String digits = btnHighVisibility.replaceAll("[^0-9.]", "");
 
-        js.executeScript("window.scrollBy(0," + digits+")");
-        wait.until(ExpectedConditions.visibilityOf(scollBtn));
+        js.executeScript("window.scrollBy(0," + (digits)+")");
+        js.executeScript("window.scrollBy(0,-100)");
+        wait.until(ExpectedConditions.elementToBeClickable(driver.findElement(By.cssSelector("#scroll-button"))));
 
         try {
             takeScreenshot(resolveTestResourcePath("screenshot-submit-button.png"));
