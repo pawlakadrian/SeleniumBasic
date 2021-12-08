@@ -11,4 +11,10 @@ public class GetRandomNumber {
         int searchingNumber = rnd.nextInt(availableOptions.size());
         return searchingNumber;
     }
+
+    public static int getRandomNumber(int maxValue) {
+        Random rnd = new Random();
+        int searchingNumber = rnd.nextInt(maxValue);
+        return searchingNumber;
+    }
 }

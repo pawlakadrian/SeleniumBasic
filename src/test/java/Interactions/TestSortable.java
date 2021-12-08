@@ -32,12 +32,12 @@ public class TestSortable extends TestBase {
         for (int i = 0; i < listShuffled.size(); ++i) {
             int lookingNumber = listShuffled.get(i);
 
-            WebElement elem = driver.findElement(By.xpath("//li[text()='Item " + lookingNumber + "']"));
+            WebElement elemToMove = driver.findElement(By.xpath("//li[text()='Item " + lookingNumber + "']"));
 
             WebElement elemOfArray = driver.findElements(By.cssSelector(".ui-sortable-handle")).get(i);
 
-            if(elem != elemOfArray){
-                actionProvider.clickAndHold(elem).dragAndDrop(elem, elemOfArray).perform();
+            if(elemToMove != elemOfArray){
+                actionProvider.clickAndHold(elemToMove).dragAndDrop(elemToMove, elemOfArray).perform();
             }
         }
     }
