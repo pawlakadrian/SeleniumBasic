@@ -79,6 +79,7 @@ fabric.properties
 /src/download/
 /src/test/resources/google-home.png
 /src/test/resources/*
+/target
 
 
 src/test/resources/
