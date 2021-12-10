@@ -1,8 +1,6 @@
 package Widgets;
 
-import Helpers.GetRandomNumber;
 import Helpers.TestBase;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -11,96 +9,129 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
-import java.time.*;
-import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.temporal.TemporalAdjusters;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-
 public class DatePicker extends TestBase {
-    private static Logger logger = LoggerFactory.getLogger(TestAccordion.class);
+    private static Logger logger = LoggerFactory.getLogger(DatePicker.class);
+
+    public int checkActualYear() {
+        int displayedYear = Integer.parseInt(driver.findElement(By.cssSelector(".ui-datepicker-year")).getText());
+        logger.info("Actual year: {} ", displayedYear);
+        return displayedYear;
+    }
+
+    public int checkActualMonth() {
+        String displayedMonth = driver.findElement(By.xpath("//td[@class = ' '][1]")).getAttribute("data-month");
+        logger.info("Actual month (showing minus 1 because of numering list): {} ", displayedMonth);
+        return Integer.parseInt(displayedMonth);
+    }
+
+    public void selectDay(int expectedDay, int expectedMonth) {
+        driver.findElement(By.xpath("//td[not(contains(@class, 'ui-datepicker-other-month'))]//a[contains(@class, 'ui-state-default')][text()=" + expectedDay + "]")).click();
+    }
+
+    public void moveToDate(int expectedYear, int expectedMonth, int expectedDay) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("#datepicker")));
+        driver.findElement(By.cssSelector("#datepicker")).click();
+        logger.info("Open datepicker");
+
+        wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(".ui-datepicker-calendar")));
+
+        while (expectedYear != checkActualYear()) {
+            WebElement nextMonthBtn = driver.findElement(By.cssSelector(".ui-datepicker-next"));
+            WebElement prevMonthBtn = driver.findElement(By.cssSelector(".ui-datepicker-prev"));
+            logger.info("Get next and prev month buttons");
+
+            logger.info("expectedYear " + expectedYear);
+            logger.info("checkActualYear() " + checkActualYear());
+
+            if (expectedYear > checkActualYear()) {
+                nextMonthBtn.click();
+                logger.info("Click next month");
+            } else if (expectedYear < checkActualYear()) {
+                prevMonthBtn.click();
+                logger.info("Click prev month");
+            }
+        }
+
+        while ((expectedMonth - 1) != checkActualMonth()) {
+            WebElement nextMonthBtn = driver.findElement(By.cssSelector(".ui-datepicker-next"));
+            WebElement prevMonthBtn = driver.findElement(By.cssSelector(".ui-datepicker-prev"));
+            logger.info("Get next and prev month buttons");
+
+            if ((expectedMonth - 1) > checkActualMonth()) {
+                nextMonthBtn.click();
+                logger.info("Click next month");
+            } else if ((expectedMonth - 1) < checkActualMonth()) {
+                prevMonthBtn.click();
+                logger.info("Click prev month");
+            }
+        }
+
+        selectDay(expectedDay, expectedMonth);
+        logger.info("Select a day: {}", expectedDay);
+    }
+
+    public String selectedDateInInput() {
+        return driver.findElement(By.cssSelector("#datepicker")).getAttribute("value");
+    }
 
     @Test
-    @DisplayName("Test Data Picker")
-    void selectDateFromDataPicker() {
+    void testDatePicker() {
         driver.get("https://seleniumui.moderntester.pl/datepicker.php");
-        WebElement dataPickerCalendar = driver.findElement(By.cssSelector("#ui-datepicker-div"));
-        WebElement dataPickerInput = driver.findElement(By.cssSelector("#datepicker"));
 
-        dataPickerInput.click();
+        LocalDate localDate = LocalDate.now();
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-        wait.until(ExpectedConditions.visibilityOfAllElements(dataPickerCalendar));
+        moveToDate(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth());
+        logger.info("Select today date");
+        logger.info("Selected date: {}", selectedDateInInput());
+        System.out.println("##################");
 
-        WebElement nextMonthBtn = driver.findElement(By.cssSelector(".ui-datepicker-next"));
-        WebElement prevMonthBtn = driver.findElement(By.cssSelector(".ui-datepicker-prev"));
-        WebElement todayDate = driver.findElement(By.cssSelector(".ui-state-highlight"));
+        LocalDate monthLater = localDate.plusMonths(1);
+        moveToDate(monthLater.getYear(), monthLater.getMonthValue(), 1);
+        logger.info("Select 1st day from next month");
+        logger.info("Selected date: {}", selectedDateInInput());
+        System.out.println("##################");
 
-        //Test: Today
-        logger.info("Start: Test today");
-        todayDate.click();
-        logger.info("Open datapicker");
-        String valueFromInput = driver.findElement(By.cssSelector("#datepicker")).getAttribute("value");
+        LocalDate nextYear = localDate.plusYears(1);
+        int nextYearToClick = nextYear.getYear();
+        moveToDate(nextYear.getYear(), 1, 31);
+        logger.info("Last day from January in next year");
+        logger.info("Selected date: {}", selectedDateInInput());
+        System.out.println("##################");
 
-        Date currentDate = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-        String todayDateFormatted = sdf.format(currentDate);
-        logger.info(todayDateFormatted);
+        moveToDate(nextYearToClick, 1, 31);
+        logger.info("Select same day again");
+        logger.info("Selected date: {}", selectedDateInInput());
+        System.out.println("##################");
 
-        assertThat(todayDateFormatted, equalTo(valueFromInput));
-        logger.info("Assert today date in input: {}", todayDateFormatted);
+        LocalDate randomDayPrevMonthStart = LocalDate.of(localDate.getYear(), Month.from(localDate.minusMonths(1)), 1);
+        LocalDate lastDayOfMonth = randomDayPrevMonthStart.with(TemporalAdjusters.lastDayOfMonth());
+        LocalDate shuffledDateFromPrevMonth = between(randomDayPrevMonthStart.toEpochDay(), lastDayOfMonth.toEpochDay());
+        moveToDate(shuffledDateFromPrevMonth.getYear(), shuffledDateFromPrevMonth.getMonthValue(), shuffledDateFromPrevMonth.getDayOfMonth());
+        logger.info("Random day from previous month");
+        logger.info("Selected date: {}", selectedDateInInput());
+        System.out.println("##################");
 
-        //Test: 1st day from next month
-        logger.info("Start: Test first day from next month");
-        nextMonthBtn.click();
-        WebElement firstDayOfNextMonth = driver.findElement(By.xpath("//a[text()='1']"));
-        logger.info(String.valueOf(firstDayOfNextMonth));
-        firstDayOfNextMonth.click();
-        valueFromInput = driver.findElement(By.cssSelector("#datepicker")).getAttribute("value");
-        logger.info("Assert today date in input: {}", valueFromInput);
-
-        logger.info("Start: Test last day from january in next year");
-
-        //Test: Last day from January in next year
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.YEAR, 1); //here n is no.of year you want to increase
-        cal.set(Calendar.MONTH, 0);
-        int res = cal.getActualMaximum(Calendar.DATE);
-        cal.set(Calendar.DAY_OF_MONTH, res);
-        SimpleDateFormat format1 = new SimpleDateFormat("MM/dd/yyyy");
-
-        String formatted = format1.format(cal.getTime());
-        System.out.println(formatted);
-        driver.findElement(By.cssSelector("#datepicker")).sendKeys("formatted");
-
-        //Test: Random day from previous month
-        //Todo: check
-        cal.set(Calendar.MONTH, -1);
-        res = cal.getActualMaximum(Calendar.DATE);
-        cal.set(Calendar.DAY_OF_MONTH, GetRandomNumber.getRandomNumber(res));
-        SimpleDateFormat format2 = new SimpleDateFormat("MM/dd/yyyy");
-
-        String formatted2 = format2.format(cal.getTime());
-        System.out.println(formatted2);
-        driver.findElement(By.cssSelector("#datepicker")).clear();
-        driver.findElement(By.cssSelector("#datepicker")).sendKeys("formatted2");
-
-        //todo: Random date from last year
+        LocalDate prevYear = localDate.minusYears(1);
+        LocalDate lastYearBegin = LocalDate.of(prevYear.getYear(), Month.JANUARY, 1);
+        LocalDate lastYearEnd = LocalDate.of(prevYear.getYear(), 12, 31);
+        LocalDate shuffledDateFromPrevYear = between(lastYearBegin.toEpochDay(), lastYearEnd.toEpochDay());
+        moveToDate(shuffledDateFromPrevYear.getYear(), shuffledDateFromPrevYear.getMonthValue(), shuffledDateFromPrevYear.getDayOfMonth());
+        logger.info("Random date from last year");
+        logger.info("Selected date: {}", selectedDateInInput());
+        System.out.println("##################");
     }
-    private static final DateTimeFormatter formatter
-            = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
-    public static LocalDate between(LocalDate startInclusive, LocalDate endExclusive) {
-        long startEpochDay = startInclusive.toEpochDay();
-        long endEpochDay = endExclusive.toEpochDay();
-        long randomDay = ThreadLocalRandom
-                .current()
-                .nextLong(startEpochDay, endEpochDay);
-
-        return LocalDate.ofEpochDay(randomDay);
+    public static LocalDate between(long start, long end) {
+        long randomDay = ThreadLocalRandom.current().nextLong(start, end);
+        LocalDate randomDate = LocalDate.ofEpochDay(randomDay);
+        return randomDate;
     }
 }
+
