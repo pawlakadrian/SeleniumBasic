@@ -58,4 +58,8 @@ public class TestBase {
         File file = new File("src/test/resources/" + filename);
         return file.getAbsolutePath();
     }
+
+    public WebDriver getDriver() {
+        return driver;
+    }
 }
